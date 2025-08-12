@@ -12,7 +12,8 @@ Displays titles for Python script cells delimited by formats like `#%%`, `# <cod
 
 ## Usage
 
-1.  Install and enable this extension.
+1.  Install and enable this extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=qiujv.pycell-outline).
+
 2.  Open a `.py` file (containing `#%%` or similar delimiters).
 3.  Open the "iPython Cells" panel in the sidebar to browse the list of cells.
 4.  Click a title to jump to the corresponding code location.
@@ -49,7 +50,7 @@ MIT License
 
 ## 使用方法
 
-1.  安装并启用本插件。
+1.  从 [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=qiujv.pycell-outline) 安装并启用本插件。
 2.  打开 `.py` 文件（带有 `#%%` 或类似分隔符）。
 3.  打开侧边栏“iPython Cells”面板，浏览单元格列表。
 4.  点击标题即可跳转到对应代码位置。
