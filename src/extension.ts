@@ -18,6 +18,7 @@ class PyCellProvider implements vscode.TreeDataProvider<CellNode> {
     readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     private editor: vscode.TextEditor | undefined;
+    private refreshTimeout: NodeJS.Timeout | undefined;
 
     constructor() {
         this.editor = vscode.window.activeTextEditor;
@@ -25,15 +26,37 @@ class PyCellProvider implements vscode.TreeDataProvider<CellNode> {
             this.editor = editor;
             this.refresh();
         });
+
         vscode.workspace.onDidChangeTextDocument(e => {
             if (this.editor && e.document === this.editor.document) {
+                this.debounceRefresh();
+            }
+        });
+
+        vscode.workspace.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration('pycellOutline.showSpecialCells') || e.affectsConfiguration('pycellOutline.pattern')) {
                 this.refresh();
             }
         });
     }
 
     refresh(): void {
+        if (this.refreshTimeout) {
+            clearTimeout(this.refreshTimeout);
+            this.refreshTimeout = undefined;
+        }
         this._onDidChangeTreeData.fire();
+    }
+
+    debounceRefresh(): void {
+        if (this.refreshTimeout) {
+            clearTimeout(this.refreshTimeout);
+        }
+        // Trigger refresh 200 milliseconds later. The timer is reset if called again within this period.
+        this.refreshTimeout = setTimeout(() => {
+            this._onDidChangeTreeData.fire();
+            this.refreshTimeout = undefined;
+        }, 200);
     }
 
     getTreeItem(element: CellNode): vscode.TreeItem {
@@ -47,10 +70,18 @@ class PyCellProvider implements vscode.TreeDataProvider<CellNode> {
 
         const doc = this.editor.document;
         const rawCells: { line: number; label: string }[] = [];
-        const regex = /^(#\s*%%|#\s*\<codecell\>|#\s*In\[\d*?\]|#\s*In\[ \])(.*)$/;
 
         const config = vscode.workspace.getConfiguration('pycellOutline');
         const showSpecialCells = config.get<boolean>('showSpecialCells', true);
+        const userPattern = config.get<string>('pattern');
+
+        let regex: RegExp;
+        try {
+            regex = new RegExp(userPattern!);
+        } catch (e: any) {
+            vscode.window.showErrorMessage(`Invalid regex pattern: ${userPattern}. Using default pattern.`);
+            regex = /^(#\s*%%|#\s*\<codecell\>|#\s*In\[\d*?\]|#\s*In\[ \])(.*)$/;
+        }
 
         for (let i = 0; i < doc.lineCount; i++) {
             const lineText = doc.lineAt(i).text;
@@ -101,5 +132,4 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 }
-
 
