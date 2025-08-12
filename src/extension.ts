@@ -14,15 +14,15 @@ class CellNode extends vscode.TreeItem {
 }
 
 class PyCellProvider implements vscode.TreeDataProvider<CellNode> {
-    private _onDidChangeTreeData: vscode.EventEmitter<CellNode | undefined | null | void> = new vscode.EventEmitter();
-    readonly onDidChangeTreeData: vscode.Event<CellNode | undefined | null | void> = this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData = new vscode.EventEmitter<CellNode | undefined | null | void>();
+    readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
     private editor: vscode.TextEditor | undefined;
 
     constructor() {
         this.editor = vscode.window.activeTextEditor;
-        vscode.window.onDidChangeActiveTextEditor(e => {
-            this.editor = e;
+        vscode.window.onDidChangeActiveTextEditor(editor => {
+            this.editor = editor;
             this.refresh();
         });
         vscode.workspace.onDidChangeTextDocument(e => {
@@ -40,23 +40,50 @@ class PyCellProvider implements vscode.TreeDataProvider<CellNode> {
         return element;
     }
 
-    getChildren(element?: CellNode): Thenable<CellNode[]> {
+    getChildren(): Thenable<CellNode[]> {
         if (!this.editor) {
             return Promise.resolve([]);
         }
+
         const doc = this.editor.document;
-        const cells: CellNode[] = [];
+        const rawCells: { line: number; label: string }[] = [];
         const regex = /^(#\s*%%|#\s*\<codecell\>|#\s*In\[\d*?\]|#\s*In\[ \])(.*)$/;
+
+        const config = vscode.workspace.getConfiguration('pycellOutline');
+        const showSpecialCells = config.get<boolean>('showSpecialCells', true);
 
         for (let i = 0; i < doc.lineCount; i++) {
             const lineText = doc.lineAt(i).text;
             const m = lineText.match(regex);
             if (m) {
-                const label = m[2].trim() || 'Untitled Cell';  // 第2个捕获组是标题内容
-                cells.push(new CellNode(label, i));
+                rawCells.push({ line: i, label: m[2].trim() });
             }
         }
-        return Promise.resolve(cells);
+
+        const finalCells: CellNode[] = [];
+
+        for (let i = 0; i < rawCells.length; i++) {
+            let currentLabel = rawCells[i].label;
+            const currentLine = rawCells[i].line;
+
+            // If cell comes without title, add special label if enabled.
+            if (!currentLabel) {
+                if (showSpecialCells) {
+                    if (i === 0) {
+                        currentLabel = 'first cell';
+                    } else if (i === rawCells.length - 1) {
+                        currentLabel = 'last cell';
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;  // Otherwise skip the cell.
+                }
+            }
+            finalCells.push(new CellNode(currentLabel, currentLine));
+        }
+
+        return Promise.resolve(finalCells);
     }
 }
 
@@ -64,12 +91,15 @@ export function activate(context: vscode.ExtensionContext) {
     const provider = new PyCellProvider();
     vscode.window.registerTreeDataProvider('pycellOutlineView', provider);
 
-    context.subscriptions.push(vscode.commands.registerCommand('pycellOutline.revealLine', (line: number) => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) return;
-        const pos = new vscode.Position(line, 0);
-        editor.selection = new vscode.Selection(pos, pos);
-        editor.revealRange(new vscode.Range(pos, pos));
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('pycellOutline.revealLine', (line: number) => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) return;
+            const pos = new vscode.Position(line, 0);
+            editor.selection = new vscode.Selection(pos, pos);
+            editor.revealRange(new vscode.Range(pos, pos));
+        })
+    );
 }
+
 

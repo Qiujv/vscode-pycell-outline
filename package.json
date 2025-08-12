@@ -1,7 +1,7 @@
 {
   "name": "pycell-outline",
   "displayName": "Python Cell Outline",
-  "description": "Show #%% cell titles in Outline view for Python scripts",
+  "description": "Show #%% cell titles in a sidebar view for Python scripts",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.85.0"
@@ -18,24 +18,29 @@
       "properties": {
         "pycellOutline.pattern": {
           "type": "string",
-          "default": "^#%%\\s*(.*)$",
-          "description": "Regex to match cell titles"
+          "default": "^(#\\s*%%|#\\s*<codecell>|#\\s*In\\[\\d*?\\]|#\\s*In\\[ \\])(.*)$",
+          "description": "Regex pattern to match Python cell titles"
+        },
+        "pycellOutline.showSpecialCells": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to show 'first cell' and 'last cell' titles for untitled cells."
         }
       }
     },
     "views": {
-        "explorer": [
-            {
-                "id": "pycellOutlineView",
-                "name": "iPython Cells"
-            }
-        ]
+      "explorer": [
+        {
+          "id": "pycellOutlineView",
+          "name": "iPython Cells"
+        }
+      ]
     },
     "commands": [
-        {
-            "command": "pycellOutline.revealLine",
-            "title": "Reveal Line"
-        }
+      {
+        "command": "pycellOutline.revealLine",
+        "title": "Reveal Line"
+      }
     ]
   },
   "scripts": {
@@ -52,3 +57,4 @@
     "tslint": "^6.1.3"
   }
 }
+
