@@ -3,10 +3,17 @@
   "displayName": "Python Cell Outline",
   "description": "Show #%% cell titles in a sidebar view for Python scripts",
   "version": "0.0.1",
+  "publisher": "qiujv",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Qiujv/vscode-pycell-outline"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
   "activationEvents": [
     "onLanguage:python"
   ],
@@ -57,4 +64,3 @@
     "tslint": "^6.1.3"
   }
 }
-

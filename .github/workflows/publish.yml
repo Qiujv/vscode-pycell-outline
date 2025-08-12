@@ -1,0 +1,39 @@
+name: Publish VS Code Extension Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm install -g vsce
+
+      - name: Package VS Code Extension
+        run: |
+          vsce package
+          ls -l *.vsix
+
+      - name: Publish to VS Code Marketplace
+        run: vsce publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+    #   - name: Create GitHub Release
+    #     uses: softprops/action-gh-release@v2
+    #     with:
+    #       files: "*.vsix"
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
