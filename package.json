@@ -2,7 +2,7 @@
   "name": "pycell-outline",
   "displayName": "Python Cell Outline",
   "description": "Show #%% cell titles in a sidebar view for Python scripts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "qiujv",
   "repository": {
     "type": "git",
