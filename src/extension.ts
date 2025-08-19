@@ -128,7 +128,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (!editor) return;
             const pos = new vscode.Position(line, 0);
             editor.selection = new vscode.Selection(pos, pos);
-            editor.revealRange(new vscode.Range(pos, pos));
+            editor.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.AtTop);
         })
     );
 }
