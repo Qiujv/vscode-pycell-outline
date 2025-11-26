@@ -34,7 +34,9 @@ class PyCellProvider implements vscode.TreeDataProvider<CellNode> {
         });
 
         vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('pycellOutline.showSpecialCells') || e.affectsConfiguration('pycellOutline.pattern')) {
+            if (e.affectsConfiguration('pycellOutline.showSpecialCells') || 
+                e.affectsConfiguration('pycellOutline.cellWithoutTitle') || 
+                e.affectsConfiguration('pycellOutline.pattern')) {
                 this.refresh();
             }
         });
@@ -73,6 +75,7 @@ class PyCellProvider implements vscode.TreeDataProvider<CellNode> {
 
         const config = vscode.workspace.getConfiguration('pycellOutline');
         const showSpecialCells = config.get<boolean>('showSpecialCells', true);
+        const cellWithoutTitle = config.get<string>('cellWithoutTitle', 'show next comment');
         const userPattern = config.get<string>('pattern');
 
         let regex: RegExp;
@@ -97,18 +100,29 @@ class PyCellProvider implements vscode.TreeDataProvider<CellNode> {
             let currentLabel = rawCells[i].label;
             const currentLine = rawCells[i].line;
 
-            // If cell comes without title, add special label if enabled.
+            // If cell comes without title, handle based on configuration.
             if (!currentLabel) {
-                if (showSpecialCells) {
-                    if (i === 0) {
-                        currentLabel = 'first cell';
-                    } else if (i === rawCells.length - 1) {
-                        currentLabel = 'last cell';
-                    } else {
-                        continue;
+                // Try to get label from next line based on cellWithoutTitle setting
+                if (cellWithoutTitle !== 'skip' && currentLine + 1 < doc.lineCount) {
+                    const nextLineText = doc.lineAt(currentLine + 1).text.trim();
+                    if (cellWithoutTitle === 'show next comment') {
+                        if (nextLineText.startsWith('#')) {
+                            currentLabel = nextLineText;
+                        }
+                    } else if (cellWithoutTitle === 'show next line') {
+                        if (nextLineText) {
+                            currentLabel = nextLineText;
+                        }
                     }
-                } else {
-                    continue;  // Otherwise skip the cell.
+                }
+
+                // Fallback to special cells (first/last) if still no label
+                if (!currentLabel) {
+                    if (showSpecialCells && (i === 0 || i === rawCells.length - 1)) {
+                        currentLabel = i === 0 ? 'first cell' : 'last cell';
+                    } else {
+                        continue;  // Skip this cell
+                    }
                 }
             }
             finalCells.push(new CellNode(currentLabel, currentLine));

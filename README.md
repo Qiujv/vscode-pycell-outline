@@ -8,7 +8,8 @@ Displays titles for Python script cells delimited by formats like `#%%`, `# <cod
 - Displays all cell titles in the "iPython Cells" view in the sidebar.
 - Clicking a title navigates to the corresponding line of code.
 - Supports various common cell comment formats found in Jupyter/IPython scripts.
-- **Configurable**: Option to show/hide "first cell" and "last cell" titles for untitled cells. (This feature was recently added/discussed)
+- **Flexible handling of untitled cells**: Choose to skip them, show the next comment line, or show any next line content.
+- **Configurable**: Customize cell pattern matching and display behavior.
 
 ## Usage
 
@@ -20,10 +21,16 @@ Displays titles for Python script cells delimited by formats like `#%%`, `# <cod
 
 ## Configuration
 
-- Customize the matching regular expression via `pycellOutline.pattern` in VS Code settings.
-  Default: `^(#\s*%%|#\s*<codecell>|#\s*In\[\d*?\]|#\s*In\[ \])(.*)$`
-- Toggle displaying "first cell" and "last cell" titles for untitled cells using `pycellOutline.showSpecialCells` in VS Code settings.
-  Default: `true`
+- **`pycellOutline.pattern`**: Customize the matching regular expression.
+  - Default: `^(#\s*%%|#\s*<codecell>|#\s*In\[\d*?\]|#\s*In\[ \])(.*)$`
+  
+- **`pycellOutline.cellWithoutTitle`**: How to handle cells without explicit titles.
+  - `"skip"`: Skip cells without titles (but still show first/last cell if `showSpecialCells` is enabled)
+  - `"show next comment"` (default): Show the next line if it starts with `#`
+  - `"show next line"`: Show the next line content regardless of whether it's a comment
+  
+- **`pycellOutline.showSpecialCells`**: Toggle displaying "first cell" and "last cell" labels for untitled cells when other methods fail.
+  - Default: `true`
 
 ## Feedback and Contributions
 
@@ -46,7 +53,8 @@ MIT License
 - 在侧边栏“iPython Cells”视图中展示所有单元格标题。
 - 点击标题即可跳转到对应代码行。
 - 支持 Jupyter/IPython 脚本中常见的多种单元格注释格式。
-- **可配置**：可通过设置选择是否为无标题单元格显示“first cell”和“last cell”标题。
+- **灵活处理无标题单元格**：可选择跳过、显示下一行注释或显示下一行任意内容。
+- **可配置**：自定义单元格模式匹配和显示行为。
 
 ## 使用方法
 
@@ -57,10 +65,16 @@ MIT License
 
 ## 配置
 
-- 通过 VS Code 设置中的 `pycellOutline.pattern` 自定义匹配正则表达式。
-  默认：`^(#\s*%%|#\s*<codecell>|#\s*In\[\d*?\]|#\s*In\[ \])(.*)$`
-- 通过 VS Code 设置中的 `pycellOutline.showSpecialCells` 控制是否为无标题单元格显示“first cell”和“last cell”标题。
-  默认：`true`
+- **`pycellOutline.pattern`**: 自定义匹配正则表达式。
+  - 默认：`^(#\s*%%|#\s*<codecell>|#\s*In\[\d*?\]|#\s*In\[ \])(.*)$`
+  
+- **`pycellOutline.cellWithoutTitle`**: 如何处理没有显式标题的单元格。
+  - `"skip"`: 跳过无标题单元格（但如果启用 `showSpecialCells` 仍会显示首/尾单元格）
+  - `"show next comment"` (默认): 如果下一行以 `#` 开头，则显示下一行内容
+  - `"show next line"`: 显示下一行内容，无论是否为注释
+  
+- **`pycellOutline.showSpecialCells`**: 当其他方法失败时，是否为无标题单元格显示 "first cell" 和 "last cell" 标签。
+  - 默认：`true`
 
 ## 反馈与贡献
 

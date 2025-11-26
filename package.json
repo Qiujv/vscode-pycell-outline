@@ -2,7 +2,7 @@
   "name": "pycell-outline",
   "displayName": "Python Cell Outline",
   "description": "Show #%% cell titles in a sidebar view for Python scripts",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "publisher": "qiujv",
   "repository": {
     "type": "git",
@@ -32,6 +32,21 @@
           "type": "boolean",
           "default": true,
           "description": "Whether to show 'first cell' and 'last cell' titles for untitled cells."
+        },
+        "pycellOutline.cellWithoutTitle": {
+          "type": "string",
+          "default": "show next comment",
+          "enum": [
+            "skip",
+            "show next comment",
+            "show next line"
+          ],
+          "enumDescriptions": [
+            "Skip cells without title",
+            "Show the next line starting with # as title",
+            "Show the next line content as title"
+          ],
+          "description": "How to handle cells without title."
         }
       }
     },
